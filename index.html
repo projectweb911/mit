@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code Detective — MIT App Inventor</title>
+<style>
+*{box-sizing:border-box}
+body{
+    margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;
+    background:linear-gradient(135deg,#07152f,#102b61 55%,#07152f);
+    color:#eef6ff;min-height:100vh;
+}
+button{font:inherit}
+.app{max-width:1180px;margin:auto;padding:24px}
+header{
+    display:flex;justify-content:space-between;align-items:center;
+    gap:20px;margin-bottom:22px
+}
+.logo{display:flex;align-items:center;gap:14px}
+.logo-icon{
+    width:54px;height:54px;border-radius:16px;
+    display:grid;place-items:center;font-size:28px;
+    background:linear-gradient(135deg,#00d9ff,#4475ff);
+    box-shadow:0 8px 30px rgba(0,217,255,.25)
+}
+.logo h1{margin:0;font-size:24px}
+.logo p{margin:3px 0 0;color:#9db4d7;font-size:13px}
+.stats{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.stat{
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);
+    border-radius:13px;padding:9px 13px;font-size:14px
+}
+.screen{display:none}
+.screen.active{display:block}
+.hero{
+    background:linear-gradient(145deg,rgba(20,49,101,.92),rgba(8,25,56,.95));
+    border:1px solid rgba(255,255,255,.12);border-radius:28px;
+    padding:34px;box-shadow:0 20px 60px rgba(0,0,0,.25)
+}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:center}
+.badge{
+    display:inline-flex;padding:7px 11px;border-radius:999px;
+    background:rgba(0,217,255,.12);color:#6eeaff;font-size:12px;
+    border:1px solid rgba(0,217,255,.2);font-weight:700
+}
+.hero h2{font-size:48px;line-height:1.05;margin:18px 0 12px}
+.hero h2 span{color:#00d9ff}
+.hero p{color:#b8c9e4;line-height:1.7}
+.primary,.secondary,.choice,.next,.hint{
+    border:0;border-radius:13px;padding:13px 18px;cursor:pointer;
+    transition:.2s;font-weight:700
+}
+.primary{background:linear-gradient(135deg,#00c9ee,#4774ff);color:white}
+.primary:hover,.secondary:hover,.choice:hover,.next:hover,.hint:hover{transform:translateY(-2px)}
+.secondary{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.12)}
+.case-card{
+    background:#071a39;border:1px solid rgba(255,255,255,.1);
+    border-radius:22px;padding:24px;position:relative;overflow:hidden
+}
+.case-card:before{
+    content:"";position:absolute;inset:auto -60px -90px auto;width:220px;height:220px;
+    background:#00d9ff;filter:blur(80px);opacity:.12
+}
+.case-card h3{margin-top:0}
+.case-row{display:flex;gap:10px;margin:12px 0;color:#a9bddb;font-size:14px}
+.case-row strong{color:#fff}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+.feature{
+    background:rgba(255,255,255,.05);padding:16px;border-radius:15px;
+    border:1px solid rgba(255,255,255,.08)
+}
+.feature b{display:block;margin-bottom:6px}.feature span{font-size:12px;color:#9fb3d2}
+.topbar{
+    display:flex;justify-content:space-between;align-items:center;gap:15px;
+    margin-bottom:16px
+}
+.progress{height:9px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;margin:10px 0 22px}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,#00d9ff,#6b76ff);width:0;transition:.4s}
+.game-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:18px}
+.panel{
+    background:rgba(8,24,52,.9);border:1px solid rgba(255,255,255,.1);
+    border-radius:22px;padding:22px
+}
+.panel h3{margin-top:0}
+.mission{
+    color:#b8c9e4;line-height:1.6;font-size:14px
+}
+.app-preview{
+    background:#f4f7fb;color:#17223b;border-radius:18px;padding:20px;
+    min-height:240px
+}
+.phone{
+    max-width:300px;margin:auto;background:white;border-radius:22px;
+    padding:18px;box-shadow:0 12px 35px rgba(0,0,0,.2)
+}
+.phone h4{text-align:center;margin:3px 0 18px}
+.input{
+    width:100%;padding:10px;border:1px solid #d7dfec;border-radius:9px;margin-bottom:10px
+}
+.fake-btn{background:#2563eb;color:white;padding:10px;border-radius:9px;text-align:center;font-weight:700}
+.fake-label{text-align:center;margin-top:14px;color:#667085;font-size:13px}
+.blocks{display:flex;flex-direction:column;gap:9px;margin-top:15px}
+.block{
+    padding:12px 14px;
+    border-radius:11px;
+    border:1px solid #244575;
+    background:#173968;
+    color:white;
+    font-size:13px;
+    font-weight:700;
+    transition:.18s ease;
+}
+.block.event,.block.action,.block.value,.block.wrong{
+    background:#173968;
+    border-color:#244575;
+}
+.block.selected{
+    outline:2px solid #00d9ff;
+    background:#1d477d;
+    transform:translateY(-1px);
+}
+.block.clickable{cursor:pointer}
+.block.clickable:hover{
+    background:#1b4275;
+    border-color:#35639b;
+}
+.choice-list{display:grid;gap:10px;margin-top:15px}
+.choice{
+    text-align:left;background:#122c58;color:white;border:1px solid #244575
+}
+.choice.selected{border-color:#00d9ff;background:#0b3960}
+.feedback{
+    margin-top:15px;padding:13px;border-radius:12px;display:none;
+    line-height:1.5;font-size:14px
+}
+.feedback.ok{display:block;background:rgba(47,199,130,.12);border:1px solid rgba(47,199,130,.35);color:#8cf0bd}
+.feedback.bad{display:block;background:rgba(255,91,115,.1);border:1px solid rgba(255,91,115,.3);color:#ffabb8}
+.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.hint{background:#253c65;color:#cfe0ff}
+.overlay{
+    position:fixed;inset:0;background:rgba(1,7,18,.8);backdrop-filter:blur(7px);
+    display:none;align-items:center;justify-content:center;padding:20px;z-index:10
+}
+.modal{
+    max-width:520px;width:100%;background:#0b2148;border:1px solid rgba(255,255,255,.13);
+    border-radius:24px;padding:28px;box-shadow:0 30px 100px rgba(0,0,0,.5)
+}
+.modal h2{margin-top:0}
+.toast{
+    position:fixed;right:22px;bottom:22px;background:#102c5b;
+    border:1px solid rgba(255,255,255,.12);padding:13px 17px;border-radius:13px;
+    display:none;z-index:20
+}
+.finish{text-align:center;padding:45px 20px}
+.finish .trophy{font-size:70px}
+.finish h2{font-size:38px;margin:12px 0}
+.small{font-size:12px;color:#91a8c9}
+/* ===== LAYAR KALAH ===== */
+#gameOver{
+    position:fixed;inset:0;z-index:50;display:none;
+    align-items:center;justify-content:center;padding:20px;
+    background:radial-gradient(circle at center,rgba(255,91,115,.18),rgba(1,7,18,.96) 65%);
+    backdrop-filter:blur(10px);
+    animation:fadeIn .45s ease;
+}
+#gameOver.show{display:flex}
+.game-over-card{
+    width:min(520px,100%);text-align:center;padding:42px 28px;
+    border-radius:30px;background:linear-gradient(145deg,#122b57,#081b3b);
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:0 30px 100px rgba(0,0,0,.55);
+    animation:losePop .65s cubic-bezier(.2,.9,.25,1.2);
+}
+.lose-face{
+    font-size:105px;line-height:1;margin-bottom:12px;
+    animation:sadBounce 1.8s ease-in-out infinite;
+}
+.game-over-card h2{
+    margin:8px 0 10px;font-size:42px;letter-spacing:1px;
+    color:#ffb3bd;
+    animation:titleShake .55s ease .2s both;
+}
+.game-over-card p{color:#b8c9e4;line-height:1.6;margin:8px 0}
+.lose-stats{
+    display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:22px 0;
+}
+.lose-stat{
+    padding:10px 16px;border-radius:13px;background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.1);font-size:14px
+}
+.game-over-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:22px}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes losePop{0%{opacity:0;transform:scale(.65) translateY(30px)}70%{transform:scale(1.04)}100%{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes sadBounce{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-9px) rotate(-3deg)}50%{transform:translateY(0) rotate(3deg)}75%{transform:translateY(-5px) rotate(-2deg)}}
+@keyframes titleShake{0%{transform:translateX(0)}25%{transform:translateX(-7px)}50%{transform:translateX(7px)}75%{transform:translateX(-4px)}100%{transform:translateX(0)}}
+@media(max-width:800px){
+    .hero-grid,.game-grid{grid-template-columns:1fr}
+    .hero h2{font-size:36px}
+    .features{grid-template-columns:1fr}
+    header{align-items:flex-start;flex-direction:column}
+    .stats{justify-content:flex-start}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+    <div class="logo">
+        <div class="logo-icon">🕵️</div>
+        <div>
+            <h1>Code Detective</h1>
+            <p>MIT App Inventor Learning Game</p>
+        </div>
+    </div>
+    <div class="stats">
+        <div class="stat">⭐ XP: <b id="xp">0</b></div>
+        <div class="stat">❤️ <b id="lives">3</b></div>
+        <div class="stat">🏆 Level: <b id="levelStat">1</b></div>
+    </div>
+</header>
+
+<section id="home" class="screen active">
+    <div class="hero">
+        <div class="hero-grid">
+            <div>
+                <span class="badge">CASE FILE #001</span>
+                <h2>Temukan.<br><span>Perbaiki.</span><br>Jalankan.</h2>
+                <p>
+                    Kamu adalah seorang Code Detective. Beberapa aplikasi MIT App Inventor
+                    mengalami masalah. Baca kasus, periksa blok program, temukan kesalahan,
+                    lalu selamatkan aplikasinya.
+                </p>
+                <button class="primary" onclick="startGame()">🔎 Mulai Investigasi</button>
+            </div>
+            <div class="case-card">
+                <h3>📁 Kasus Pertama</h3>
+                <div class="case-row">🎯 <strong>Kasus:</strong>&nbsp; Tombol Tidak Berfungsi</div>
+                <div class="case-row">🧩 <strong>Materi:</strong>&nbsp; Event & Component</div>
+                <div class="case-row">💡 <strong>Tugas:</strong>&nbsp; Temukan blok yang salah</div>
+                <div class="case-row">🏅 <strong>Reward:</strong>&nbsp; 100 XP</div>
+            </div>
+        </div>
+        <div class="features">
+            <div class="feature"><b>🧩 Debugging</b><span>Belajar membaca blok MIT App Inventor.</span></div>
+            <div class="feature"><b>🚀 Misi Bertahap</b><span>Level meningkat dari dasar sampai final boss.</span></div>
+            <div class="feature"><b>🏆 Gamifikasi</b><span>XP, nyawa, badge, hint dan progress.</span></div>
+        </div>
+    </div>
+</section>
+
+<section id="game" class="screen">
+    <div class="topbar">
+        <div>
+            <div class="small">PROGRESS INVESTIGASI</div>
+            <div><b id="caseTitle">Case 1</b></div>
+        </div>
+        <button class="secondary" onclick="showHome()">↩ Keluar</button>
+    </div>
+    <div class="progress"><i id="progressBar"></i></div>
+
+    <div class="game-grid">
+        <div class="panel">
+            <div class="badge" id="caseBadge">CASE #001</div>
+            <h2 id="missionTitle">Tombol Tidak Berfungsi</h2>
+            <p class="mission" id="missionText"></p>
+
+            <div class="app-preview" id="preview"></div>
+
+            <div class="actions">
+                <button class="hint" onclick="showHint()">💡 Petunjuk</button>
+                <button class="secondary" onclick="runApp()">▶ Jalankan Aplikasi</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>🧩 Bukti Program</h3>
+            <p class="small">Klik blok yang menurutmu menyebabkan masalah.</p>
+            <div class="blocks" id="blocks"></div>
+            <div id="feedback" class="feedback"></div>
+            <div class="actions">
+                <button class="primary" id="submitBtn" onclick="submitAnswer()">🔍 Periksa Bukti</button>
+                <button class="next" id="nextBtn" style="display:none" onclick="nextCase()">Kasus Berikutnya →</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="finish" class="screen">
+    <div class="panel finish">
+        <div class="trophy">🏆</div>
+        <h2>Investigasi Selesai!</h2>
+        <p>Kamu berhasil menyelesaikan seluruh kasus Code Detective.</p>
+        <p>XP Akhir: <strong id="finalXp">0</strong></p>
+        <button class="primary" onclick="restartGame()">🔄 Main Lagi</button>
+    </div>
+</section>
+</div>
+
+<div id="gameOver">
+    <div class="game-over-card">
+        <div class="lose-face">😭</div>
+        <h2>KAMU KALAH!</h2>
+        <p>Semua nyawa detektif telah habis.</p>
+        <p>Jangan menyerah! Periksa kembali alur blok dan coba pecahkan kasusnya lagi.</p>
+        <div class="lose-stats">
+            <div class="lose-stat">❤️ Nyawa: <b>0</b></div>
+            <div class="lose-stat">⭐ XP: <b id="loseXp">0</b></div>
+            <div class="lose-stat">📁 Kasus: <b id="loseCase">1</b></div>
+        </div>
+        <div class="game-over-actions">
+            <button class="primary" onclick="retryAfterLose()">🔄 Coba Lagi</button>
+            <button class="secondary" onclick="backToMenuAfterLose()">🏠 Kembali ke Menu</button>
+        </div>
+    </div>
+</div>
+<div class="overlay" id="overlay">
+    <div class="modal">
+        <h2 id="modalTitle">💡 Petunjuk</h2>
+        <p id="modalText"></p>
+        <button class="primary" onclick="closeModal()">Mengerti</button>
+    </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const cases = [
+{
+    title:"Tombol Tidak Berfungsi",
+    topic:"Event & Component",
+    text:"Aplikasi salam memiliki TextBox dan Label. Ketika Button1 ditekan, nama dari TextBox seharusnya muncul pada Label. Temukan blok yang salah.",
+    hint:"Perhatikan event. Tombol harus menggunakan event Click, bukan komponen lain.",
+    preview:`<div class="phone"><h4>👋 Aplikasi Salam</h4><input class="input" placeholder="Tulis namamu"><div class="fake-btn">SAPA SAYA</div><div class="fake-label">Halo, siapa namamu?</div></div>`,
+    blocks:[
+        ["when Button1.Click","event",false],
+        ["set Label1.Text to TextBox1.Text","action",false],
+        ["when Label1.Click","wrong",true],
+        ["set Label1.Visible to true","action",false]
+    ],
+    success:"Benar! Label1 bukan tombol. Event yang benar harus berasal dari Button1.Click."
+},
+{
+    title:"Pesan yang Salah",
+    topic:"Property",
+    text:"Aplikasi ini berhasil dijalankan, tetapi tombol menampilkan teks yang salah. Cari blok yang mengubah property komponen yang tidak tepat.",
+    hint:"Jika ingin mengubah tulisan pada tombol, property yang digunakan adalah Button.Text.",
+    preview:`<div class="phone"><h4>🔘 Button App</h4><div class="fake-btn">KLIK SAYA</div><div class="fake-label">Tombol harus bertuliskan MULAI</div></div>`,
+    blocks:[
+        ["when Button1.Click","event",false],
+        ["set Button1.Text to \"MULAI\"","action",false],
+        ["set Label1.Text to \"MULAI\"","wrong",true],
+        ["set Button1.Enabled to true","action",false]
+    ],
+    success:"Tepat! Target property yang dicari adalah Button1.Text."
+},
+{
+    title:"Variable Misterius",
+    topic:"Variable",
+    text:"Program menghitung skor pemain. Nilai sudah disimpan ke variable skor, tetapi programmer mengambil data dari variable yang salah.",
+    hint:"Ikuti aliran data: skor yang disimpan harus sama dengan skor yang ditampilkan.",
+    preview:`<div class="phone"><h4>⭐ SCORE APP</h4><div class="fake-label">Skor Pemain</div><div style="font-size:42px;text-align:center;font-weight:800">250</div></div>`,
+    blocks:[
+        ["initialize global skor to 0","action",false],
+        ["set global skor to 250","action",false],
+        ["set LabelScore.Text to get global nama","wrong",true],
+        ["set LabelScore.Text to get global skor","action",false]
+    ],
+    success:"Benar! LabelScore harus mengambil nilai dari global skor, bukan global nama."
+},
+{
+    title:"Perangkap IF",
+    topic:"If / Else",
+    text:"Login aplikasi hanya boleh berhasil jika username adalah 'admin'. Temukan logika yang membuat kondisi login keliru.",
+    hint:"Bandingkan username dengan nilai yang benar. Kondisi harus menggunakan operator =.",
+    preview:`<div class="phone"><h4>🔐 LOGIN</h4><input class="input" placeholder="Username"><input class="input" placeholder="Password"><div class="fake-btn">LOGIN</div><div class="fake-label">Status: belum login</div></div>`,
+    blocks:[
+        ["if username = \"admin\" then","event",false],
+        ["set LabelStatus.Text to \"Login berhasil\"","action",false],
+        ["if username ≠ \"admin\" then login berhasil","wrong",true],
+        ["else set LabelStatus.Text to \"Gagal\"","action",false]
+    ],
+    success:"Bagus! Kondisi terbalik akan membuat pengguna yang bukan admin justru dianggap berhasil."
+},
+{
+    title:"FINAL BOSS — Counter",
+    topic:"Event + Variable + Logic",
+    text:"Buat logika penghitung klik. Setiap Button1 ditekan, skor harus bertambah 1. Temukan blok yang menghentikan counter.",
+    hint:"Setiap klik harus mengambil nilai skor lama, lalu menambahkannya dengan 1.",
+    preview:`<div class="phone"><h4>🎮 CLICK COUNTER</h4><div style="font-size:54px;text-align:center;font-weight:800">07</div><div class="fake-btn">+1 SCORE</div><div class="fake-label">Klik sebanyak mungkin!</div></div>`,
+    blocks:[
+        ["when Button1.Click","event",false],
+        ["set global skor to global skor + 1","action",false],
+        ["set global skor to 0","wrong",true],
+        ["set LabelScore.Text to global skor","action",false]
+    ],
+    success:"FINAL BOSS ditaklukkan! Kamu sudah menggabungkan Event, Variable, dan Logic."
+}
+];
+
+let current=0, xp=0, lives=3, selected=null, solved=false;
+
+function showScreen(id){
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+function startGame(){
+    current=0; xp=0; lives=3; updateStats(); showScreen("game"); loadCase();
+}
+function restartGame(){startGame()}
+function showHome(){showScreen("home")}
+function updateStats(){
+    document.getElementById("xp").textContent=xp;
+    document.getElementById("lives").textContent=lives;
+    document.getElementById("levelStat").textContent=current+1;
+}
+function loadCase(){
+    selected=null; solved=false;
+    const c=cases[current];
+    document.getElementById("caseTitle").textContent=`Case ${current+1} dari ${cases.length}`;
+    document.getElementById("caseBadge").textContent=`CASE #${String(current+1).padStart(3,"0")} • ${c.topic}`;
+    document.getElementById("missionTitle").textContent=c.title;
+    document.getElementById("missionText").textContent=c.text;
+    document.getElementById("preview").innerHTML=c.preview;
+    document.getElementById("progressBar").style.width=((current)/cases.length*100)+"%";
+    document.getElementById("feedback").className="feedback";
+    document.getElementById("feedback").textContent="";
+    document.getElementById("submitBtn").style.display="inline-block";
+    document.getElementById("nextBtn").style.display="none";
+    const box=document.getElementById("blocks"); box.innerHTML="";
+    c.blocks.forEach((b,i)=>{
+        const el=document.createElement("div");
+        el.className=`block ${b[1]} clickable`;
+        el.textContent=b[0];
+        el.onclick=()=>selectBlock(i,el);
+        box.appendChild(el);
+    });
+    updateStats();
+}
+function selectBlock(i,el){
+    if(solved)return;
+    document.querySelectorAll(".block").forEach(x=>x.classList.remove("selected"));
+    selected=i;
+    el.classList.add("selected");
+}
+function submitAnswer(){
+    const fb=document.getElementById("feedback");
+    if(selected===null){
+        fb.className="feedback bad";fb.textContent="🔎 Pilih salah satu blok terlebih dahulu.";return;
+    }
+    const correct=cases[current].blocks[selected][2];
+    if(correct){
+        solved=true;xp+=100;updateStats();
+        fb.className="feedback ok";fb.innerHTML="✅ <b>Kasus terpecahkan!</b><br>"+cases[current].success;
+        document.getElementById("submitBtn").style.display="none";
+        document.getElementById("nextBtn").style.display="inline-block";
+        toast("+100 XP — Bukti berhasil ditemukan!");
+    }else{
+        lives--;
+        updateStats();
+        fb.className="feedback bad";
+        fb.textContent="❌ Bukan blok itu. Periksa kembali alur program.";
+        if(lives<=0){
+            updateStats();
+            showGameOver();
+        }
+    }
+}
+function showGameOver(){
+    document.getElementById("loseXp").textContent=xp;
+    document.getElementById("loseCase").textContent=current+1;
+    document.getElementById("gameOver").classList.add("show");
+}
+
+function retryAfterLose(){
+    document.getElementById("gameOver").classList.remove("show");
+    lives=3;
+    updateStats();
+    loadCase();
+}
+
+function backToMenuAfterLose(){
+    document.getElementById("gameOver").classList.remove("show");
+    lives=3;
+    updateStats();
+    showHome();
+}
+
+function nextCase(){
+    current++;
+    if(current>=cases.length){
+        document.getElementById("finalXp").textContent=xp;
+        showScreen("finish");
+    }else loadCase();
+}
+function showHint(){
+    document.getElementById("modalText").textContent=cases[current].hint;
+    document.getElementById("overlay").style.display="flex";
+}
+function closeModal(){document.getElementById("overlay").style.display="none"}
+function runApp(){
+    toast("▶ Simulasi aplikasi dijalankan. Cari blok yang menyebabkan bug!");
+}
+function toast(msg){
+    const t=document.getElementById("toast");t.textContent=msg;t.style.display="block";
+    clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.style.display="none",2300);
+}
+</script>
+</body>
+</html>
